@@ -1,0 +1,17 @@
+services:
+  python-app:
+    build:
+      context: .
+    container_name: python-app
+    restart: unless-stopped
+    init: true
+    ports:
+      - "81:80"  # Flask app exposed on port 80 in Dockerfile
+    # env_file: ./.env  # Uncomment if .env file exists
+    networks:
+      - appnet
+    # No external dependencies detected (no database, cache, etc.)
+
+networks:
+  appnet:
+    driver: bridge
