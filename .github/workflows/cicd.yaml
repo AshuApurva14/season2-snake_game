@@ -60,7 +60,7 @@ jobs:
   
   test:
     runs-on: ['self-hosted', 'Linux', 'X64']
-    needs: code_scanning
+    needs: secret_scanning
     
     steps:
       - name: Checkout repository
