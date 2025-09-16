@@ -45,3 +45,16 @@ instance/
 
 # Logs
 *.log
+
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
