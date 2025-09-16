@@ -8,6 +8,9 @@ on:
       - main
 
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     runs-on: ['self-hosted', 'Linux', 'X64']
@@ -53,3 +56,107 @@ jobs:
           uses: gitleaks/gitleaks-action@v2
           env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+
+  code_scanning:
+    needs: secret_scanning
+    uses: ./.github/workflows/codeql.yml
+
+
+  
+  test:
+    runs-on: ['self-hosted', 'Linux', 'X64']
+    needs: code_scanning
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5.0.0
+      
+      - name: Setup Python
+        uses: actions/setup-python@v6.0.0
+        with:
+          python-version: '3.13'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov
+          
+      - name: Run tests
+        run: pytest --cov=. --cov-report=xml
+
+
+  docker_build_and_push:
+    runs-on: ['self-hosted', 'Linux', 'X64']
+    needs: test
+      
+
+    env:
+        DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+        REGISTRY: "docker.io"
+        IMG_NAME: "aapurva/python-apps"
+
+
+    outputs:
+        image_tag: ${{ steps.set_output.outputs.image_tag }}
+      
+
+    steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v4.2.2
+          with:
+            fetch-depth: 0
+
+        - name: Docker Login
+          id: docker-login
+          uses: docker/login-action@v3
+          with:
+            username: ${{ env.DOCKER_HUB_USERNAME }}
+            password: ${{ env.DOCKER_HUB_TOKEN }}
+
+
+        - name: Extract metadata for Docker
+          id: meta
+          uses: docker/metadata-action@v5
+          with:
+            images: ${{ env.IMG_NAME }}
+            tags: |
+              type=sha,format=long
+              type=ref,event=branch
+              latest
+
+
+        - name: Build Docker image
+          uses: docker/build-push-action@v5
+          with:
+            context: .
+            push: false
+            tags: ${{ steps.meta.outputs.tags }}
+            labels: ${{ steps.meta.outputs.labels }}
+            load: true
+          
+      
+        - name: Run Trivy vulnerability scanner
+          uses: aquasecurity/trivy-action@master
+          with:
+            image-ref: ${{ env.REGISTRY }}/${{ env.IMG_NAME }}:sha-${{ github.sha }}
+            format: 'table'
+            exit-code: '1'
+            ignore-unfixed: true
+            vuln-type: 'os,library'
+            severity: 'CRITICAL,HIGH'
+        
+        - name: Push Docker image
+          uses: docker/build-push-action@v5
+          with:
+            context: .
+            push: true
+            tags: ${{ steps.meta.outputs.tags }}
+            labels: ${{ steps.meta.outputs.labels }}
+      
+        - name: Set image tag output
+          id: set_output
+          run: echo "image_tag=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+
