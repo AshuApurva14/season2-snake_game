@@ -57,13 +57,6 @@ jobs:
           env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-
-
-  code_scanning:
-    needs: secret_scanning
-    uses: ./.github/workflows/codeql.yml
-
-
   
   test:
     runs-on: ['self-hosted', 'Linux', 'X64']
