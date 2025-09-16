@@ -10,12 +10,12 @@ on:
 
 jobs:
   build_code:
-  runs-on: [devops_runner]
+    runs-on: [devops_runner]
 
 
 
-  steps:
+    steps:
    
-     - name: Checkout
-       uses: actions/checkout@v5.0.0
+      - name: Checkout
+        uses: actions/checkout@v5.0.0
     
