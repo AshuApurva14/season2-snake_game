@@ -161,3 +161,76 @@ jobs:
           id: set_output
           run: echo "image_tag=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
 
+
+
+  
+  deploy_app:
+    runs-on: [ubuntu-latest]
+    needs: docker_build_and_push
+     
+    env:
+        DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+        
+
+
+
+    steps:
+
+        - name: Checkout Repository
+          uses: actions/checkout@v4.2.2
+
+
+        - name: Docker Login
+          id: docker-login
+          uses: docker/login-action@v3
+          with:
+            username: ${{ env.DOCKER_HUB_USERNAME }}
+            password: ${{ env.DOCKER_HUB_TOKEN }}
+
+        
+        - name: Docker Setup Buildx
+          uses: docker/setup-buildx-action@v3.11.1
+
+
+        - name: Set image tag for deployment
+          id: deployment_status
+          env:
+            IMG_TAG: sha-${{ github.sha }}
+            DOCKER_REGISTRY: ${{ env.DOCKER_HUB_USERNAME }}/python-apps
+
+          run: |
+
+            echo "New tag is set for deployment: ${{ env.IMG_TAG }}"
+
+            echo "Deploy the application"
+            
+            docker run -dp 9000:5000 --name python-app ${{ env.DOCKER_REGISTRY }}:${{ env.IMG_TAG }} 
+
+        
+         # Step 4: Test app is running
+        - name: Curl health endpoint
+          run: |
+            sleep 5
+            curl http://localhost:9000/ || exit 1
+
+
+        - name: Send deployment status email
+          uses: dawidd6/action-send-mail@v3
+          with:
+              server_address: smtp.gmail.com
+              server_port: 465
+              username: ${{ secrets.EMAIL_USERNAME }}
+              password: ${{ secrets.EMAIL_PASSWORD }}
+              subject: "🚀 Deployment Status: ${{ steps.deployment_status.conclusion }}"
+              to: "devopssre5@gmail.com"
+              from: GitHub Actions
+              body: |
+                Hello,
+                
+                Deployment for *${{ github.repository }}* on commit ${{ github.sha }} has finished.
+                Status: **${{ job.status }}**
+
+                Application is running successfully!.
+
+                Triggered by: ${{ github.actor }}
