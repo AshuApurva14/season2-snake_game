@@ -165,7 +165,7 @@ jobs:
 
   
   deploy_app:
-    runs-on: [ubuntu-latest]
+    runs-on: ['self-hosted', 'Linux', 'X64']
     needs: docker_build_and_push
      
     env:
