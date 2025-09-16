@@ -1,6 +1,5 @@
 name: CICD workflow for Snake Game application
-permissions:
-  contents: read
+
 
 on:
   workflow_dispatch:
