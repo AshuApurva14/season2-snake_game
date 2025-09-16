@@ -9,13 +9,47 @@ on:
 
 
 jobs:
-  build_code:
+  lint:
     runs-on: ['self-hosted', 'Linux', 'X64']
 
 
 
     steps:
    
-      - name: Checkout
-        uses: actions/checkout@v5.0.0
+        - name: Checkout
+          uses: actions/checkout@v5.0.0
     
+
+        - name: Setup Python
+          uses: actions/setup-python@v6.0.0
+          with:
+            python-version: '3.13'
+    
+
+        - name: ruff-action 
+          uses: astral-sh/ruff-action@v3.5.1
+
+        - name: fix any linting issue
+          run : ruff check --fix
+
+        - name: Fix any format issue
+          run: ruff format
+
+
+  secret_scanning:
+       
+    name: gitleaks
+    runs-on: ['self-hosted', 'Linux', 'X64']
+    needs: lint
+
+
+    steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+              fetch-depth: 0
+
+        - name: Scan leaks in code repo
+          uses: gitleaks/gitleaks-action@v2
+          env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
