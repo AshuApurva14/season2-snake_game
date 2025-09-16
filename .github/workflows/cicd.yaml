@@ -10,7 +10,7 @@ on:
 
 jobs:
   build_code:
-    runs-on: [devops_runner]
+    runs-on: ['self-hosted', 'Linux', 'X64']
 
 
 
