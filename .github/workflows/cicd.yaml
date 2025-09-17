@@ -243,6 +243,9 @@ jobs:
             echo "Remove already running container"
 
             docker rm -f $(docker ps -l -q)
+
+            sleep 2
+
             docker system prune -a -f
             
 
