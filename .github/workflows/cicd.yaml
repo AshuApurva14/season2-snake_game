@@ -71,7 +71,9 @@ jobs:
           echo " Analysis of code starts"
           pip install pysonar
           
-        
+          echo "Set Heap memory"
+
+          export SONAR_SCANNER_JAVA_OPTS="-Xmx512m"
 
           pysonar -Dsonar.organization=ashuapurva14 -Dsonar.projectKey=AshuApurva14_season2-snake_game  -Dsonar.sources="." -Dsonar.token=${{ env.SONAR_TOKEN }}
      
