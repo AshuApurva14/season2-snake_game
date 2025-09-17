@@ -58,6 +58,12 @@ jobs:
 
     steps:
 
+      - name: Setup Python
+          uses: actions/setup-python@v6.0.0
+          with:
+            python-version: '3.13'
+            cache: 'pip'
+
       - name: Code Coverage by SonarQube
         run: |
           
