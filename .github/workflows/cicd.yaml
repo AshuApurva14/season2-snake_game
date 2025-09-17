@@ -28,6 +28,12 @@ jobs:
           uses: actions/setup-python@v6.0.0
           with:
             python-version: '3.13'
+            cache: 'pip'
+
+        - name: Install dependencies
+          run: |
+            
+            pip install -r requirements.txt
     
 
         - name: ruff-action 
@@ -41,6 +47,27 @@ jobs:
 
 
 
+  code_analysis:
+    runs-on: ['self-hosted', 'Linux', 'X64']
+    needs: lint
+
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+    steps:
+
+      - name: Code Coverage by SonarQube
+        run: |
+          
+          echo " Analysis of code starts"
+
+          pysonar -Dsonar.organization=apurva14 -Dsonar.projectKey=AshuApurva14_season2-snake_game  -Dsonar.sources="." -Dsonar.token=${{ env.SONAR_TOKEN }}
+     
+          echo "Code is analysed successfully!"
+    
+
   secret_scanning:
        
     name: gitleaks
@@ -49,10 +76,10 @@ jobs:
 
 
     steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
-          with:
-              fetch-depth: 0
+        # - name: Checkout repository
+        #   uses: actions/checkout@v4
+        #   with:
+        #       fetch-depth: 0
 
         - name: Scan leaks in code repo
           uses: gitleaks/gitleaks-action@v2
@@ -201,7 +228,12 @@ jobs:
 
           run: |
 
+            echo "Remove already running container"
+
+            docker system prune -a -f
+
             echo "New tag is set for deployment: ${{ env.IMG_TAG }}"
+
 
             echo "Deploy the application"
             
@@ -212,7 +244,7 @@ jobs:
         - name: Curl health endpoint
           run: |
             sleep 5
-            curl http://localhost:9000/ || exit 1
+            curl http://localhost:80/ || exit 1
 
 
         - name: Send deployment status email
