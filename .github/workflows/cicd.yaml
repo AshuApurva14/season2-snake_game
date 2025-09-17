@@ -205,7 +205,7 @@ jobs:
 
             echo "Deploy the application"
             
-            docker run -dp 9000:5000 --name python-app ${{ env.DOCKER_REGISTRY }}:${{ env.IMG_TAG }} 
+            docker run -dp 80:5000 --name python-app ${{ env.DOCKER_REGISTRY }}:${{ env.IMG_TAG }} 
 
         
          # Step 4: Test app is running

@@ -27,5 +27,5 @@ COPY --link app.py ./
 COPY --link templates/ ./templates/
 COPY --link static/ ./static/
 
-EXPOSE 80
+EXPOSE 5000
 CMD ["python", "app.py"]
