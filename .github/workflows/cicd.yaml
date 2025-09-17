@@ -70,7 +70,7 @@ jobs:
 
           echo " Analysis of code starts"
           pip install pysonar
-          pysonar -Dsonar.organization=AshuApurva14 -Dsonar.projectKey=AshuApurva14_season2-snake_game  -Dsonar.sources="." -Dsonar.token=${{ env.SONAR_TOKEN }}
+          pysonar -Dsonar.organization=ashuapurva14 -Dsonar.projectKey=AshuApurva14_season2-snake_game  -Dsonar.sources="." -Dsonar.token=${{ env.SONAR_TOKEN }}
      
           echo "Code is analysed successfully!"
     
