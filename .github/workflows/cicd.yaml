@@ -79,7 +79,7 @@ jobs:
        
     name: gitleaks
     runs-on: ['self-hosted', 'Linux', 'X64']
-    needs: lint
+    needs: code_analysis
 
 
     steps:
@@ -237,7 +237,9 @@ jobs:
 
             echo "Remove already running container"
 
+            docker rm -f $(docker ps -l -q)
             docker system prune -a -f
+            
 
             echo "New tag is set for deployment: ${{ env.IMG_TAG }}"
 
