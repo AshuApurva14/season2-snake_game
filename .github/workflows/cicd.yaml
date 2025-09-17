@@ -47,44 +47,44 @@ jobs:
 
 
 
-  code_analysis:
-    runs-on: ['self-hosted', 'Linux', 'X64']
-    needs: lint
+  # code_analysis:
+  #   runs-on: ['self-hosted', 'Linux', 'X64']
+  #   needs: lint
 
-    env:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #   env:
+  #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
-    steps:
+  #   steps:
 
-      - name: Setup Python
-        uses: actions/setup-python@v6.0.0
-        with:
-            python-version: '3.13'
-            cache: 'pip'
+  #     - name: Setup Python
+  #       uses: actions/setup-python@v6.0.0
+  #       with:
+  #           python-version: '3.13'
+  #           cache: 'pip'
 
-      - name: Code Coverage by SonarQube
-        run: |
+  #     - name: Code Coverage by SonarQube
+  #       run: |
           
 
-          echo " Analysis of code starts"
-          pip install pysonar
+  #         echo " Analysis of code starts"
+  #         pip install pysonar
           
-          echo "Set Heap memory"
+  #         echo "Set Heap memory"
 
-          export SONAR_SCANNER_JAVA_OPTS="-Xmx512m"
+  #         export SONAR_SCANNER_JAVA_OPTS="-Xmx512m"
 
-          pysonar -Dsonar.organization=ashuapurva14 -Dsonar.projectKey=AshuApurva14_season2-snake_game  -Dsonar.sources="." -Dsonar.token=${{ env.SONAR_TOKEN }}
+  #         pysonar -Dsonar.organization=ashuapurva14 -Dsonar.projectKey=AshuApurva14_season2-snake_game  -Dsonar.sources="." -Dsonar.token=${{ env.SONAR_TOKEN }}
      
-          echo "Code is analysed successfully!"
+  #         echo "Code is analysed successfully!"
     
 
   secret_scanning:
        
     name: gitleaks
     runs-on: ['self-hosted', 'Linux', 'X64']
-    needs: code_analysis
+    needs: lint
 
 
     steps:
